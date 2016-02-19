@@ -1,34 +1,48 @@
-/* Compare two arrays and return a new array with any items only found in one of the two given arrays, but not both. 
-In other words, return the symmetric difference of the two arrays./*
+/* Compare two arrays and return a new array with any items only found in one of the two given arrays, but not both.
+In other words, return the symmetric difference of the two arrays.*/
 
-/**
- * @param {int|string, array} val, arr
- * @return {boolean}
- * returns true if `val` is not in `arr`, otherwise returns false
- */
-function filterLoop(val, arr){
-  for(var i = 0; i < arr.length; i++){
-      if(val === arr[i]){
-        return false;
-      }
-   }
-   return true;
+// depending on type of array elements sort array and get single elements
+function sortAndGetSingleElements(arr){
+  var singleElements = [];
+
+  if(typeof singleTypeArr[0] === 'number') {
+    arr.sort(function(a,b) {
+      return a - b;
+    });
+  } else {
+    arr.sort();
+  }
+
+  arr.forEach(function(element,index) {
+    if(element !== singleTypeArr[index - 1] && element !== singleTypeArr[index + 1]) {
+      singleElements.push(element);
+    }
+  });
+
+  return singleElements;
 }
 
 function diff(arr1, arr2) {
-  var newArr = [];
-  
-  var arr1_filtered = arr1.filter(function(val){
-     return filterLoop(val, arr2);
+  var diffArr,
+      concatArr = arr1.concat(arr2),
+      stringArr = [],
+      numArr = [];
+
+  concatArr.forEach(function(element, index) {
+    var elementType = typeof element;
+    if(elementType === 'string' ||
+       elementType === 'boolean' ||
+       element === null || elementType === 'undefined') {
+      stringArr.push(element);
+    } else if(elementType === 'number') {
+      numArr.push(element);
+    }
   });
-  
-  var arr2_filtered = arr2.filter(function(val){
-     return filterLoop(val, arr1);
-  });
-  
-  newArr = arr1_filtered.concat(arr2_filtered);
-  
-  return newArr;
+
+  diffArr = sortAndGetSingleElements(stringArr).concat(sortAndGetSingleElements(numArr));
+
+  return diffArr;
 }
 
-diff([1, 2, 5, 8, 9], [1, 2, 3, 4, 5]);
+diff([1, "calf", 3, "piglet"], [1, "calf", 3, 4]);
+
