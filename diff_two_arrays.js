@@ -1,48 +1,37 @@
 /* Compare two arrays and return a new array with any items only found in one of the two given arrays, but not both.
 In other words, return the symmetric difference of the two arrays.*/
 
-// depending on type of array elements sort array and get single elements
-function sortAndGetSingleElements(arr){
-  var singleElements = [];
-
-  if(typeof singleTypeArr[0] === 'number') {
-    arr.sort(function(a,b) {
-      return a - b;
-    });
-  } else {
-    arr.sort();
+function pushRemainingElements(startIndex, sourceArr, destinationArr) {
+  for (var i = startIndex; i < sourceArr.length; i++){
+    destinationArr.push(sourceArr[i]);
   }
-
-  arr.forEach(function(element,index) {
-    if(element !== singleTypeArr[index - 1] && element !== singleTypeArr[index + 1]) {
-      singleElements.push(element);
-    }
-  });
-
-  return singleElements;
 }
 
 function diff(arr1, arr2) {
-  var diffArr,
-      concatArr = arr1.concat(arr2),
-      stringArr = [],
-      numArr = [];
+  var diffArr = [];
+  var i, j;
 
-  concatArr.forEach(function(element, index) {
-    var elementType = typeof element;
-    if(elementType === 'string' ||
-       elementType === 'boolean' ||
-       element === null || elementType === 'undefined') {
-      stringArr.push(element);
-    } else if(elementType === 'number') {
-      numArr.push(element);
+  arr1.sort();
+  arr2.sort();
+
+  for (i = 0, j= 0; i < arr1.length && j < arr2.length; ) {
+    if (arr1[i] === arr2[j]) {
+      i++;
+      j++;
+    } else if (arr1[i].toString() < arr2[j].toString()) {
+      diffArr.push(arr1[i]);
+      i++;
+    } else {
+      diffArr.push(arr2[j]);
+      j++;
     }
-  });
+  }
 
-  diffArr = sortAndGetSingleElements(stringArr).concat(sortAndGetSingleElements(numArr));
+  pushRemainingElements(i, arr1, diffArr);
+  pushRemainingElements(j, arr2, diffArr);
 
   return diffArr;
 }
 
-diff([1, "calf", 3, "piglet"], [1, "calf", 3, 4]);
+diff([1, 3, "calf", "piglet"], [1, 3, 4, "calf", "dino"]);
 
