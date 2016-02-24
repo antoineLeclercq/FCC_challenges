@@ -15,6 +15,8 @@ var romanSpec = {
   4: 'IV',
   1: 'I'
 };
+
+// store keys and sort them in descending order for @buildRoman()
 var romanSpecKeys = Object.keys(romanSpec).sort(function (a,b) {
   return b-a;
 });
@@ -50,9 +52,9 @@ function buildRoman(numDecomposed){
 function intoRoman(num){
 
   var numDecomposed = getNumDecomposition(num);
-  var numRoman = buildRoman(numDecomposition);
+  var numRoman = buildRoman(numDecomposed);
 
   return numRoman;
 }
 
-convert(1099);
+intoRoman(1099);
