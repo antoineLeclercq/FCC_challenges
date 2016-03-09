@@ -11,18 +11,29 @@ function permutations(s) {
 
     var res = []
     var perms = [''];
+    var newPermutations = [];
+    var allPermutations = [];
+
     // get permutations for s[0:s.length - 1]
     if (s.length > 1) {
         perms = permutations(s.slice(0, s.length - 1));
     }
 
     // add s[length] to those
-    for (var i = 0; i < perms.length; i++) {
+   for (var i = 0; i < s.length; i++) {
 
-        res.push(perms[i] + s[s.length]);
+        for (var j = 0; j < perms.length; j++) {
+
+            var permutation = perms[j].slice(0, i) + s[s.length - 1] + perms[j].slice(i);
+
+            newPermutations.push(permutation);
+        }
+
+        allPermutations = allPermutations.concat(newPermutations);
+        newPermutations = [];
     }
 
-    return res;
+    return allPermutations;
 }
 
-console.log(permutations('abc'));
+console.log(permutations('abcd'));
