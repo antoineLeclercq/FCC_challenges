@@ -16,7 +16,7 @@ function permutations (s) {
     
     // if string is more than 1 char, recursively call permutations until s is only one char
     if (s.length > 1) {
-        var perms = permutations_2(s.slice(0, s.length - 1));
+        perms = permutations_2(s.slice(0, s.length - 1));
     }
     
     // having `perms` equal to the permutations of the `s` associated with the previous function call
