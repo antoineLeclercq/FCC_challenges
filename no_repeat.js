@@ -2,6 +2,24 @@
 
 For example, aab should return 2 because it has 6 total permutations (aab, aab, aba, aba, baa, baa), but only 2 of them (aba and aba) don't have the same letter (in this case a) repeating. */
 
+// check if `perm` has 2 repeated chars, if not push perm to `allPermutations`
+function checkUniquePermutation(perm, allPermutations) {
+    
+    var checker = true;
+
+    for (var k = 0; k < perm.length; k++) {
+
+        if (perm[k] === perm[k + 1]) {
+            checker = false;
+            break;
+        }
+    }
+
+    if (checker) {
+        allPermutations.push(perm);
+    }
+}
+
 function uniquePermutations(s, sLength) {
     
     var allPermutations = [],
@@ -24,22 +42,8 @@ function uniquePermutations(s, sLength) {
             perm = perms[j].slice(0,i) + s[s.length - 1] + perms[j].slice(i);
 
             // if `perm` is the same length as initial string passed in @permAlone
-            // check if `perm` has 2 repeated chars, if not push perm to `allPermutations
             if (perm.length === sLength) {
-
-                var checker = true;
-
-                for (var k = 0; k < perm.length; k++) {
-
-                    if (perm[k] === perm[k + 1]) {
-                        checker = false;
-                        break;
-                    }
-                }
-
-                if (checker) {
-                    allPermutations.push(perm);
-                }
+                checkUniquePermutation(perm, allPermutations);
             } 
             else {
                 allPermutations.push(perm);
