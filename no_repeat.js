@@ -7,69 +7,29 @@ For example, aab should return 2 because it has 6 total permutations (aab, aab, 
  * return: [Array]
  * Tales a string as input and returns a list of strings containing all the possible permutations of `s`
  */
-function permutations_1(s) {
-
-    var res = []
-    var perms = [''];
-    var newPermutations = [];
-    var allPermutations = [];
-
-    // get permutations for s[0:s.length - 1]
-    if (s.length > 1) {
-        perms = permutations(s.slice(0, s.length - 1));
-    }
-
-    // add s[length] to those
-   for (var i = 0; i < s.length; i++) {
-
-        for (var j = 0; j < perms.length; j++) {
-
-            var permutation = perms[j].slice(0, i) + s[s.length - 1] + perms[j].slice(i);
-
-            newPermutations.push(permutation);
-        }
-
-        allPermutations = allPermutations.concat(newPermutations);
-        newPermutations = [];
-    }
-
-    return allPermutations;
-}
-
-console.log(permutations_1('abcd'));
-
-// other solution
-
-function nPlus1 (s, sPerms, c) {
-
-    var nPlus1Perms = [],
-        perm;
-
-    for (var i = 0; i <= s.length; i++) {
-
-        for (var j = 0; j < sPerms.length; j++) {
-
-            perm = sPerms[j].slice(0,i) + c + sPerms[j].slice(i);
-            nPlus1Perms.push(perm);
-        }
-    }
-
-    return nPlus1Perms;
-}
 
 function permutations (s) {
-
-    if (s.length === 1 || s.length === 0) {
-        return [s];
+    
+    var allPermutations = [],
+        perms = [''],
+        perm;
+    
+    // if string is more than 1 char, recursively call permutations until s is only one char
+    if (s.length > 1) {
+        var perms = permutations_2(s.slice(0, s.length - 1));
     }
-
-    if (s.length > 2) {
-        var perms = permutations(s.slice(0,s.length - 1));
-    } else {
-        return nPlus1(s[0], [s[0]], s[1]);
+    
+    // having `perms` equal to the permutations of the `s` associated with the previous function call
+    // for each position in `s`, loop through all permutations
+    // and add the additional char in `s` that was not in the previous function call to each permutation for each position in s
+    for (var i = 0; i < s.length; i++) {
+        
+        for (var j = 0; j < perms.length; j++) {
+            
+            perm = perms[j].slice(0,i) + s[s.length - 1] + perms[j].slice(i);
+            allPermutations.push(perm);
+        }
     }
-
-    return nPlus1(s.slice(0, s.length - 1), perms, s[s.length - 1]);
+    
+    return allPermutations;
 }
-
-console.log(permutations('abc'));
