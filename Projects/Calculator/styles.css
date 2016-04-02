@@ -1,0 +1,64 @@
+@import url(http://fonts.googleapis.com/css?family=Lobster+Two);
+
+body{
+    background-color: deepskyblue;
+}
+
+h1{
+  margin-top: 5%;
+  font-size: 70px;
+  text-align: center;
+  font-family: "Lobster Two";
+}
+
+#calc-container{
+    margin: auto;
+    margin-top: 5%;
+    padding-top: 15px;
+    padding-left: 19px;
+    display: block;
+    height: 500px;
+    width: 395px;
+    background-color: #e9bc1b;
+    border-radius: 25px;
+}
+
+#calc-display{
+    margin-top: 10px;
+    margin-left: 5px;
+    margin-bottom: 15px;
+    border-radius: 25px;
+    background-color: #f2f2f3;
+    height: 43px;
+    width: 345px;
+}
+
+#display-result{
+    text-align: right;
+    padding-right: 20px;
+    font-size: 30px;
+}
+
+ul{
+    list-style-type: none;
+}
+
+.row-calc{
+    width: 100%;
+}
+
+.btn-number{
+    width: 75px;
+    height: 70px;
+    background-color: #f5eacd;
+}
+
+.btn-action{
+    width: 165px;
+    height: 70px;
+    background-color: #ee4b3e;
+}
+
+#equal{
+    background-color: #1fda9a;
+}
