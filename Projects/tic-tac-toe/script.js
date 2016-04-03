@@ -15,20 +15,23 @@
         
         // gets score of a end state for minimax algo
         // sets score depending on the number of moves made by AI
-        this.getScore = function () {
+        this.getScore = function (state) {
             
-            // score when AI wins
-            if ( this.currState.status === 'AI wins!' ) {
-                return 10 - this.currState.AIMovesCount;
+            if ( state.status !== state.runningMessage ) {
+                
+                // score when AI wins
+                if ( state.status === state.AIWinnerMessage ) {
+                    return 10 - state.AIMovesCount;
+                }
+
+                // score when user wins
+                if ( state.status === state.humanWinnerMessage ) {
+                    return - 10 + state.AIMovesCount;
+                }
+
+                // score when status is draw
+                return 0;
             }
-            
-            // score when user wins
-            if ( this.currState.status === 'You win!' ) {
-                return this.currState.AIMovesCount - 10;
-            }
-            
-            // score when status is draw or in process
-            return 0;
         }
     }
     
@@ -63,13 +66,13 @@
             // if Player is AI then randomly pick the next move
             if ( self.kind === 'AI' ) {
                 
-//                minimax(game, game.currState);
+                minimax(game, game.currState);
                 
-                var emptyBoxesArr = game.currState.getEmptyBoxes(),
+                /*var emptyBoxesArr = game.currState.getEmptyBoxes(),
                     nextBoxIndex;
 
                 nextBoxIndex = Math.floor( Math.random() * emptyBoxesArr.length )
-                self.nextMove = emptyBoxesArr[nextBoxIndex];
+                self.nextMove = emptyBoxesArr[nextBoxIndex];*/
             }
         },
         
@@ -101,7 +104,13 @@
         // if oldState is specified, the new state gets its properties from oldState
         if ( oldState ) {
             
-            this.grid = oldState.grid;
+            var self = this;
+            
+            this.grid = [];
+            oldState.grid.forEach(function (box) {
+                self.grid.push(box);
+            });
+            
             this.turn = oldState.turn;
             this.AIMovesCount = oldState.AIMovesCount;
             this.status = oldState.status;
@@ -110,7 +119,9 @@
         else {
             
             // array representing the tic-tac-toe grid in the DOM
-            this.grid = new Array(9);
+            this.grid = [null, null, null, 
+                         null, null, null, 
+                         null, null, null];
             // which signs will play next
             this.turn = '';
             // count of moves made by AI
@@ -163,7 +174,7 @@
 
                 if (self.grid[combination[0]] === self.grid[combination[1]] &&
                     self.grid[combination[1]] === self.grid[combination[2]] &&
-                    self.grid[combination[0]] !== undefined) {
+                    self.grid[combination[0]] !== null) {
                     
                     message = self.grid[combination[0]] === AISign ? self.AIWinnerMessage : self.humanWinnerMessage;
                     return message;
@@ -174,7 +185,7 @@
             // if one is, game is still in process
             for (var j = 0; j < self.grid.length; j++) {
                 
-                if (self.grid[j] === undefined) {
+                if (self.grid[j] === null) {
                     
                     return self.runningMessage;
                 }
@@ -205,7 +216,7 @@
             // for each box in grid, included it in emptyBoxesArr if it's empty
             for (var i = 0; i < self.grid.length; i++) {
                 
-                if ( self.grid[i] === undefined ) {
+                if ( self.grid[i] === null ) {
                     emptyBoxesArr.push(i);
                 }
             }
@@ -214,68 +225,75 @@
         }
     };
     
-    // minimax, not working yet
+    // minimax algorithm implementation
     function minimax (game, state) {
-
+        
+        // if state is an end state, get the state's score
         if ( state.isEnd ) {
             return game.getScore(state);
         }
         
         var availableMoves = state.getEmptyBoxes(),
             bestScore,
-            currentScore;
+            possibleStateScore,
+            allPossibleStatesScores = [];
         
-        if ( state.turn === game.AI.sign ) {
+        // for each available moves, create a new state
+        // store each score of each state by recursively calling minimax
+        availableMoves.forEach(function (move) {
             
-            bestScore = -Infinity;
+            // create new state based on previous state
+            var possibleState = new State(state);
             
-            availableMoves.forEach(function (move) {
-                
-                var possibleState = new State(state);
+            // let AI or human play depending on state's turn
+            // and store score of possibleState
+            if ( state.turn === game.AI.sign ) {
                 
                 game.AI.nextMove = move;
                 game.AI.play(possibleState, game.AI.sign);
+
+                possibleStateScore = minimax(game, possibleState);
                 
-                currentScore = minimax(game, possibleState);
-                console.log(move);
-                if ( currentScore > bestScore ) {
-                    
-                    bestScore = currentScore;
-                    game.AI.nextMove = move;
-//                    console.log(bestScore);
-                }
+                allPossibleStatesScores.push(possibleStateScore);
+            }
+            else {
+
+                game.human.nextMove = move;
+                game.human.play(possibleState, game.AI.sign);
+
+                possibleStateScore = minimax(game, possibleState);
+                
+                allPossibleStatesScores.push(possibleStateScore);
+            }
+        });
+        
+        // get best score and return it
+        // update nextMove for AI only with the move that gave the best score among all possible states
+        if ( state.turn === game.AI.sign ) {
+            
+            var maxScoreIndex = allPossibleStatesScores.findIndex(function (score) {
+                
+                return score === Math.max.apply(null, allPossibleStatesScores);
             });
             
-            return bestScore;
-        }
+            game.AI.nextMove = availableMoves[maxScoreIndex];
+            
+            return allPossibleStatesScores[maxScoreIndex];
+        } 
         else {
             
-            bestScore = +Infinity;
-            
-            availableMoves.forEach(function (move) {
+            var minScoreIndex = allPossibleStatesScores.findIndex(function (score) {
                 
-                var possibleState = new State(state);
-                
-                game.human.nextMove = move;
-                game.human.play(possibleState, game.human.sign);
-                
-                currentScore = minimax(game, possibleState);
-                
-                if ( currentScore < bestScore ) {
-                    
-                    bestScore = currentScore;
-                    game.human.nextMove = move;
-                }
+                return score === Math.min.apply(null, allPossibleStatesScores);
             });
             
-            return bestScore;
+            return allPossibleStatesScores[minScoreIndex];
         }
     }
     
     // have the methods available on the global object
     global.State = State;
     global.Player = Player;
-    global.minimax = minimax;
     global.Game = Game;
     global.fillBox = fillBox;
     
@@ -355,6 +373,8 @@ $(document).ready(function() {
             
             fillBox($(boxId), game.AI.sign);
         }
+        
+        console.log(game.currState);
         
         // if game is over display winner and suggest to start a new game
         // update score
