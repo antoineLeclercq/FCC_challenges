@@ -66,9 +66,10 @@
             // if Player is AI then randomly pick the next move
             if ( self.kind === 'AI' ) {
                 
-                minimax(game, game.currState);
+                minimaxWithAlphaBeta(game, game.currState, -Infinity, +Infinity);
                 
-                /*var emptyBoxesArr = game.currState.getEmptyBoxes(),
+                /* //AI plays randomly
+                var emptyBoxesArr = game.currState.getEmptyBoxes(),
                     nextBoxIndex;
 
                 nextBoxIndex = Math.floor( Math.random() * emptyBoxesArr.length )
@@ -226,7 +227,7 @@
     };
     
     // minimax algorithm implementation
-    function minimax (game, state) {
+    function minimaxWithAlphaBeta (game, state, alpha, beta) {
         
         // if state is an end state, get the state's score
         if ( state.isEnd ) {
@@ -236,58 +237,76 @@
         var availableMoves = state.getEmptyBoxes(),
             bestScore,
             possibleStateScore,
-            allPossibleStatesScores = [];
+            allPossibleStatesScores = [],
+            moves = [];
         
-        // for each available moves, create a new state
-        // store each score of each state by recursively calling minimax
-        availableMoves.forEach(function (move) {
+        // let AI or human play depending on state's turn
+        // store score of all possible states and return the best one
+        if ( state.turn === game.AI.sign ) {
             
-            // create new state based on previous state
-            var possibleState = new State(state);
+            // for each possible move, create a new state
+            // let AI play and store the possible state's score
+            for ( var i = 0; i < availableMoves.length; i++ ) {
             
-            // let AI or human play depending on state's turn
-            // and store score of possibleState
-            if ( state.turn === game.AI.sign ) {
+                // create new state based on current state
+                var move = availableMoves[i];
+                var possibleState = new State(state);
                 
                 game.AI.nextMove = move;
                 game.AI.play(possibleState, game.AI.sign);
-
-                possibleStateScore = minimax(game, possibleState);
+                
+                // recursively call minimax to get the possible state's score
+                possibleStateScore = minimaxWithAlphaBeta(game, possibleState, alpha, beta);
+                
+                // > alpha no compute
+                if ( possibleStateScore > alpha ) {
+                    alpha = possibleStateScore;
+                }
+                
+                if ( alpha >= beta ) {
+                    break;
+                }
                 
                 allPossibleStatesScores.push(possibleStateScore);
+                moves.push(move);
             }
-            else {
-
-                game.human.nextMove = move;
-                game.human.play(possibleState, game.AI.sign);
-
-                possibleStateScore = minimax(game, possibleState);
-                
-                allPossibleStatesScores.push(possibleStateScore);
-            }
-        });
-        
-        // get best score and return it
-        // update nextMove for AI only with the move that gave the best score among all possible states
-        if ( state.turn === game.AI.sign ) {
             
+            // get max score and return it
+            // update AI's nextMove with the move that gave the best score among all possible states
             var maxScoreIndex = allPossibleStatesScores.findIndex(function (score) {
                 
                 return score === Math.max.apply(null, allPossibleStatesScores);
             });
             
-            game.AI.nextMove = availableMoves[maxScoreIndex];
+            game.AI.nextMove = moves[maxScoreIndex];
             
-            return allPossibleStatesScores[maxScoreIndex];
-        } 
+            return alpha;
+        }
+        // same thing than for AI with human instead
         else {
             
-            var minScoreIndex = allPossibleStatesScores.findIndex(function (score) {
+            for ( var i = 0; i < availableMoves.length; i++ ) {
                 
-                return score === Math.min.apply(null, allPossibleStatesScores);
-            });
+                var move = availableMoves[i];
+                var possibleState = new State(state);
+                
+                game.human.nextMove = move;
+                game.human.play(possibleState, game.AI.sign);
+
+                possibleStateScore = minimaxWithAlphaBeta(game, possibleState, alpha, beta);
+                
+                // < beta no compute
+                if ( possibleStateScore < beta ) {
+                    beta = possibleStateScore;
+                }
+                
+                if ( beta <= alpha ) {
+                    break;
+                }
+            }
             
-            return allPossibleStatesScores[minScoreIndex];
+            // get min score and return it
+            return beta;
         }
     }
     
@@ -373,8 +392,6 @@ $(document).ready(function() {
             
             fillBox($(boxId), game.AI.sign);
         }
-        
-        console.log(game.currState);
         
         // if game is over display winner and suggest to start a new game
         // update score
